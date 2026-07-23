@@ -38,7 +38,11 @@ export default function Header() {
 
   useEffect(() => {
     setMounted(true);
-    
+
+    if (!supabase) {
+      return;
+    }
+
     // Check current auth status
     const checkUser = async () => {
       const { data: { session } } = await supabase.auth.getSession();
@@ -58,7 +62,7 @@ export default function Header() {
 
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
+      async (_event: string, session: any) => {
         if (session) {
           setUser(session.user);
           const { data } = await supabase
@@ -96,6 +100,10 @@ export default function Header() {
   };
 
   const handleSignOut = async () => {
+    if (!supabase) {
+      return;
+    }
+
     await supabase.auth.signOut();
     setDropdownOpen(false);
     router.refresh();
