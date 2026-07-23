@@ -16,8 +16,10 @@ import {
   Settings, 
   LogOut,
   Sparkles,
-  ArrowRight
+  ArrowRight,
+  Heart
 } from "lucide-react";
+import DonateModal from "@/components/ui/DonateModal";
 import { createClient } from "@/lib/supabase/client";
 
 // Let's import tools-registry properly
@@ -33,6 +35,7 @@ export default function Header() {
   const [profile, setProfile] = useState<any>(null);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [toolsDropdownOpen, setToolsDropdownOpen] = useState(false);
+  const [donateModalOpen, setDonateModalOpen] = useState(false);
   const router = useRouter();
   const supabase = createClient();
 
@@ -202,6 +205,15 @@ export default function Header() {
             )}
           </div>
 
+          {/* Donate Button */}
+          <button
+            onClick={() => setDonateModalOpen(true)}
+            className="flex items-center gap-1.5 rounded-full bg-gradient-to-r from-pink-500 to-rose-500 px-3.5 py-1.5 text-xs font-bold text-white shadow-md shadow-pink-500/20 hover:opacity-95 hover:scale-105 active:scale-95 transition-all"
+          >
+            <Heart className="h-4 w-4 fill-white animate-pulse" />
+            <span>Donate</span>
+          </button>
+
           {/* Theme Switcher */}
           <button
             onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
@@ -239,6 +251,14 @@ export default function Header() {
                       <span className="font-semibold text-foreground">{user.email}</span>
                     </div>
                     <Link
+                      href="/dashboard/profile"
+                      className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-foreground hover:bg-muted"
+                      onClick={() => setDropdownOpen(false)}
+                    >
+                      <User className="h-4 w-4 text-primary" />
+                      Profile
+                    </Link>
+                    <Link
                       href="/dashboard"
                       className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-foreground hover:bg-muted"
                       onClick={() => setDropdownOpen(false)}
@@ -260,17 +280,24 @@ export default function Header() {
           ) : (
             <div className="hidden sm:flex sm:items-center sm:gap-2">
               <Link 
+                href="/dashboard/profile"
+                className="flex items-center gap-1 rounded-full border border-border px-3.5 py-1.5 text-xs font-semibold text-foreground hover:bg-muted transition-colors"
+              >
+                <User className="h-3.5 w-3.5 text-primary" />
+                Profile
+              </Link>
+              <Link 
                 href="/login"
-                className="rounded-full px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+                className="rounded-full px-3.5 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:text-foreground"
               >
                 Sign In
               </Link>
               <Link 
                 href="/pricing"
-                className="flex items-center gap-1 rounded-full bg-primary px-4 py-2 text-sm font-medium text-white shadow-sm transition-colors hover:bg-primary/95"
+                className="flex items-center gap-1 rounded-full bg-primary px-3.5 py-1.5 text-xs font-medium text-white shadow-sm transition-colors hover:bg-primary/95"
               >
                 Go Pro
-                <ArrowRight className="h-4 w-4" />
+                <ArrowRight className="h-3.5 w-3.5" />
               </Link>
             </div>
           )}
@@ -313,6 +340,24 @@ export default function Header() {
             ))}
 
             <div className="border-t border-border/50 pt-4 mt-4 space-y-2">
+              <button
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  setDonateModalOpen(true);
+                }}
+                className="flex items-center justify-center gap-2 w-full rounded-lg bg-gradient-to-r from-pink-500 to-rose-500 py-2.5 text-sm font-bold text-white shadow-md shadow-pink-500/20"
+              >
+                <Heart className="h-4 w-4 fill-white animate-pulse" /> Donate & Support
+              </button>
+
+              <Link
+                href="/dashboard/profile"
+                className="flex items-center justify-center gap-2 w-full rounded-lg border border-border py-2 text-sm font-semibold text-foreground hover:bg-muted"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                <User className="h-4 w-4 text-primary" /> Profile
+              </Link>
+
               {!user && (
                 <>
                   <Link
@@ -335,6 +380,12 @@ export default function Header() {
           </div>
         </div>
       )}
+
+      {/* Donate Modal */}
+      <DonateModal 
+        isOpen={donateModalOpen} 
+        onClose={() => setDonateModalOpen(false)} 
+      />
     </header>
   );
 }
