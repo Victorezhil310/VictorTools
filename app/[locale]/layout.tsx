@@ -47,6 +47,11 @@ export default async function RootLayout({
   return (
     <html lang={locale} className="h-full scroll-smooth" suppressHydrationWarning>
       <body className={`${inter.variable} min-h-full flex flex-col font-sans antialiased`}>
+        <script
+          async
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9747982919206794"
+          crossOrigin="anonymous"
+        />
         <NextIntlClientProvider messages={messages}>
           <ThemeProvider
             attribute="class"
