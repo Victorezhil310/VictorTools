@@ -37,6 +37,11 @@ export default function DashboardPage() {
 
   useEffect(() => {
     const fetchDashboardData = async () => {
+      if (!supabase) {
+        setLoading(false);
+        return;
+      }
+
       // 1. Get current auth session
       const { data: { session } } = await supabase.auth.getSession();
       
@@ -73,6 +78,11 @@ export default function DashboardPage() {
   }, [supabase, router]);
 
   const handleSignOut = async () => {
+    if (!supabase) {
+      router.push("/login");
+      return;
+    }
+
     await supabase.auth.signOut();
     router.push("/login");
     router.refresh();

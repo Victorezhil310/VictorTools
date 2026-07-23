@@ -6,6 +6,11 @@ import { PRICING } from "@/lib/constants";
 export async function POST(req: NextRequest) {
   try {
     const supabase = await createClient();
+
+    if (!supabase) {
+      return NextResponse.json({ error: "Supabase is not configured on the server." }, { status: 503 });
+    }
+
     const { data: { user } } = await supabase.auth.getUser();
 
     if (!user) {

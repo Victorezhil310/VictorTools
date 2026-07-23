@@ -31,6 +31,12 @@ export default function LoginPage() {
     setLoading(true);
     setMessage(null);
 
+    if (!supabase) {
+      setMessage({ type: "error", text: "Authentication is unavailable because Supabase credentials are not configured." });
+      setLoading(false);
+      return;
+    }
+
     try {
       if (isSignUp) {
         const { error } = await supabase.auth.signUp({
@@ -64,6 +70,13 @@ export default function LoginPage() {
 
   const handleGoogleLogin = async () => {
     setLoading(true);
+
+    if (!supabase) {
+      setMessage({ type: "error", text: "Google sign-in is unavailable because Supabase credentials are not configured." });
+      setLoading(false);
+      return;
+    }
+
     try {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",

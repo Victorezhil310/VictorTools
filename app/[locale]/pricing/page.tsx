@@ -15,6 +15,11 @@ export default function PricingPage() {
   const supabase = createClient();
 
   useEffect(() => {
+    if (!supabase) {
+      setLoading(false);
+      return;
+    }
+
     // Load Razorpay Checkout Script dynamically
     const script = document.createElement("script");
     script.src = "https://checkout.razorpay.com/v1/checkout.js";
@@ -41,6 +46,11 @@ export default function PricingPage() {
   }, [supabase]);
 
   const handleSubscribe = async () => {
+    if (!supabase) {
+      alert("Payments are currently unavailable because the server is missing its payment configuration.");
+      return;
+    }
+
     if (!user) {
       router.push("/login?redirect=/pricing");
       return;

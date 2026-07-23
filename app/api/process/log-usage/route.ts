@@ -5,6 +5,11 @@ import { incrementRateLimit } from "@/lib/rate-limiter";
 export async function POST(req: NextRequest) {
   try {
     const supabase = await createClient();
+
+    if (!supabase) {
+      return NextResponse.json({ error: "Supabase is not configured on the server." }, { status: 503 });
+    }
+
     const { data: { user } } = await supabase.auth.getUser();
 
     const { toolSlug, fileSize, status = "completed" } = await req.json();
@@ -21,6 +26,9 @@ export async function POST(req: NextRequest) {
 
     // 2. Insert trace record into usage_logs table using admin client (bypasses RLS blocks)
     const supabaseAdmin = await createAdminClient();
+    if (!supabaseAdmin) {
+      return NextResponse.json({ status: "logged-without-db" });
+    }
     await supabaseAdmin.from("usage_logs").insert({
       user_id: userId,
       ip_address: ipAddress,
