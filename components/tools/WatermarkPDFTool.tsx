@@ -100,7 +100,8 @@ export default function WatermarkPDFTool() {
       }
 
       const watermarkedBytes = await pdfDoc.save();
-      const blob = new Blob([watermarkedBytes], { type: "application/pdf" });
+      const watermarkedBuffer = new Uint8Array(watermarkedBytes).buffer as ArrayBuffer;
+      const blob = new Blob([watermarkedBuffer.slice(0, watermarkedBuffer.byteLength)], { type: "application/pdf" });
       const url = URL.createObjectURL(blob);
 
       setDownloadUrl(url);

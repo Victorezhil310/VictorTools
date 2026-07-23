@@ -39,7 +39,8 @@ export default function MergePDFTool() {
       const mergedBytes = await mergedPdf.save();
 
       // Create download blob
-      const blob = new Blob([mergedBytes], { type: "application/pdf" });
+      const mergedBuffer = new Uint8Array(mergedBytes).buffer as ArrayBuffer;
+      const blob = new Blob([mergedBuffer.slice(0, mergedBuffer.byteLength)], { type: "application/pdf" });
       const url = URL.createObjectURL(blob);
       setDownloadUrl(url);
     } catch (e: any) {

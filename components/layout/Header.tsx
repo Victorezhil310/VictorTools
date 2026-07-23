@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useTheme } from "next-themes";
-import { BRAND, TOOLS, CATEGORIES } from "@/lib/constants"; // Note: BRAND is in constants, but TOOLS and CATEGORIES are in tools-registry
+import { BRAND } from "@/lib/constants";
 import { 
   Menu, 
   X, 

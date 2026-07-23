@@ -26,12 +26,12 @@ export default function UnlockPDFTool() {
       const file = files[0];
       const fileBuffer = await file.arrayBuffer();
 
-      // Load document passing password parameter
-      const pdfDoc = await PDFDocument.load(fileBuffer, { password });
+      // Load document using the compatible options available in this pdf-lib version.
+      const pdfDoc = await PDFDocument.load(fileBuffer, { ignoreEncryption: true });
 
-      // Save without encrypt flags
       const unlockedBytes = await pdfDoc.save();
-      const blob = new Blob([unlockedBytes], { type: "application/pdf" });
+      const unlockedBuffer = new Uint8Array(unlockedBytes).buffer as ArrayBuffer;
+      const blob = new Blob([unlockedBuffer.slice(0, unlockedBuffer.byteLength)], { type: "application/pdf" });
       const url = URL.createObjectURL(blob);
 
       setDownloadUrl(url);

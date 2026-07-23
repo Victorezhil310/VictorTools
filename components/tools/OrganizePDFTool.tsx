@@ -47,8 +47,9 @@ export default function OrganizePDFTool() {
         canvas.width = viewport.width;
 
         const renderContext = {
+          canvas,
           canvasContext: context,
-          viewport: viewport,
+          viewport,
         };
         await page.render(renderContext).promise;
 
@@ -133,7 +134,8 @@ export default function OrganizePDFTool() {
       }
 
       const compiledBytes = await targetDoc.save();
-      const blob = new Blob([compiledBytes], { type: "application/pdf" });
+      const compiledBuffer = new Uint8Array(compiledBytes).buffer as ArrayBuffer;
+      const blob = new Blob([compiledBuffer.slice(0, compiledBuffer.byteLength)], { type: "application/pdf" });
       const url = URL.createObjectURL(blob);
       setDownloadUrl(url);
     } catch (e: any) {

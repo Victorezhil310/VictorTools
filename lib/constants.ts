@@ -25,3 +25,7 @@ export const PRICING = {
     usd: 4.99,
   },
 };
+
+export const FREE_DAILY_LIMIT = LIMITS.free.dailyLimit;
+export const MAX_FILE_SIZE_FREE = LIMITS.free.maxFileSize;
+export const MAX_FILE_SIZE_PRO = LIMITS.pro.maxFileSize;

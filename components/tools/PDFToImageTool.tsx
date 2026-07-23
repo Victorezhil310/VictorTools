@@ -47,8 +47,9 @@ export default function PDFToImageTool() {
 
         // Render page to canvas
         const renderContext = {
+          canvas,
           canvasContext: context,
-          viewport: viewport,
+          viewport,
         };
         await page.render(renderContext).promise;
 

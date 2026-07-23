@@ -60,7 +60,8 @@ export default function ImageToPDFTool() {
       }
 
       const pdfBytes = await pdfDoc.save();
-      const blob = new Blob([pdfBytes], { type: "application/pdf" });
+      const pdfBuffer = new Uint8Array(pdfBytes).buffer as ArrayBuffer;
+      const blob = new Blob([pdfBuffer.slice(0, pdfBuffer.byteLength)], { type: "application/pdf" });
       const url = URL.createObjectURL(blob);
       setDownloadUrl(url);
     } catch (e: any) {

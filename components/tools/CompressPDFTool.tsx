@@ -48,7 +48,9 @@ export default function CompressPDFTool() {
         compressedSize = Math.floor(originalSize * 0.92);
       }
 
-      const blob = new Blob([compressedBytes], { type: "application/pdf" });
+      const pdfBytes = new Uint8Array(compressedBytes);
+      const pdfBuffer = pdfBytes.buffer as ArrayBuffer;
+      const blob = new Blob([pdfBuffer.slice(pdfBytes.byteOffset, pdfBytes.byteOffset + pdfBytes.byteLength)], { type: "application/pdf" });
       const url = URL.createObjectURL(blob);
       
       setStats({ originalSize, compressedSize });
