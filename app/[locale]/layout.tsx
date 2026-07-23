@@ -5,6 +5,7 @@ import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import { BRAND } from "@/lib/constants";
 import Script from "next/script";
+import { Analytics } from "@vercel/analytics/next";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -53,6 +54,7 @@ export default async function RootLayout({
         <Header />
         <main className="flex-1 bg-background flex flex-col">{children}</main>
         <Footer />
+        <Analytics />
       </body>
     </html>
   );
