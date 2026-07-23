@@ -215,4 +215,12 @@ export const TOOLS: Tool[] = [
     seoTitle: "Free PDF Invoice Generator Online - VictorTools",
     seoDescription: "Create and download professional PDF invoices online instantly. No sign-up required, secure client-side generation.",
   },
+  {
+    name: "Resume / CV Builder",
+    slug: "resume-builder",
+    description: "Build clean, professional A4 PDF resumes instantly.",
+    category: "pdf",
+    seoTitle: "Free Resume & CV Builder Online - Download PDF - VictorTools",
+    seoDescription: "Create a professional PDF resume in seconds. Completely private, client-side, free PDF export.",
+  },
 ];

@@ -37,7 +37,7 @@ export default function DonateModal({ isOpen, onClose }: DonateModalProps) {
   const [amount, setAmount] = useState<number>(49);
   const [customAmount, setCustomAmount] = useState<string>("");
   const [copied, setCopied] = useState(false);
-  const [upiId] = useState("victortools@upi");
+  const [upiId] = useState("arasu9629hf@okhdfcbank");
   const qrRef = useRef<HTMLDivElement>(null);
   const qrInstance = useRef<any>(null);
 

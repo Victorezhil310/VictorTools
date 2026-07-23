@@ -27,6 +27,7 @@ const UnitConverter = dynamic(() => import("@/components/tools/UnitConverterTool
 const CaseConverter = dynamic(() => import("@/components/tools/CaseConverterTool"), { ssr: false });
 const DiffChecker = dynamic(() => import("@/components/tools/DiffCheckerTool"), { ssr: false });
 const InvoiceGenerator = dynamic(() => import("@/components/tools/InvoiceGeneratorTool"), { ssr: false });
+const ResumeBuilder = dynamic(() => import("@/components/tools/ResumeBuilderTool"), { ssr: false });
 
 export default function ToolRenderer({ slug }: { slug: string }) {
   switch (slug) {
@@ -76,6 +77,8 @@ export default function ToolRenderer({ slug }: { slug: string }) {
       return <DiffChecker />;
     case "invoice-generator":
       return <InvoiceGenerator />;
+    case "resume-builder":
+      return <ResumeBuilder />;
     default:
       notFound();
   }
