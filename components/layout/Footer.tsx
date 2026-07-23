@@ -1,10 +1,22 @@
 import React from "react";
 import Link from "next/link";
 import { BRAND } from "@/lib/constants";
-import { Shield, Clock, Heart } from "lucide-react";
+import { Shield, Clock, Heart, Share2, Gift, Sparkles, Copy } from "lucide-react";
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
+  const shareUrl = "https://victormedia.net";
+  const referralCode = "ARASU10";
+  const donationUpi = "arasu9629hf@okhdfcbank";
+
+  const handleCopy = async (value: string) => {
+    try {
+      await navigator.clipboard.writeText(value);
+      alert("Copied to clipboard.");
+    } catch {
+      alert("Clipboard access is unavailable in this browser.");
+    }
+  };
 
   return (
     <footer className="w-full border-t border-border/40 bg-card py-12">
@@ -24,6 +36,36 @@ export default function Footer() {
           <div className="flex items-center gap-2 text-sm font-medium text-emerald-500 bg-emerald-500/10 px-3 py-1.5 rounded-full self-start md:self-auto">
             <Clock className="h-4 w-4" />
             1-Hour Auto-Delete Guarantee
+          </div>
+        </div>
+
+        <div className="mb-10 rounded-2xl border border-border/60 bg-gradient-to-br from-primary/10 via-background to-emerald-500/10 p-6 shadow-sm">
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+            <div className="space-y-2">
+              <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-primary">Share & Support</p>
+              <h4 className="text-xl font-bold text-foreground">Invite friends, support the project, and unlock an ad-free Pro experience.</h4>
+              <p className="text-sm text-muted-foreground">Share VictorTools with your network, use referral code {referralCode}, or donate with UPI {donationUpi} to keep the platform growing.</p>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <button
+                onClick={() => handleCopy(shareUrl)}
+                className="inline-flex items-center gap-2 rounded-full border border-border bg-background px-3 py-2 text-sm font-semibold text-foreground"
+              >
+                <Share2 className="h-4 w-4" /> Copy Share Link
+              </button>
+              <button
+                onClick={() => handleCopy(referralCode)}
+                className="inline-flex items-center gap-2 rounded-full border border-border bg-background px-3 py-2 text-sm font-semibold text-foreground"
+              >
+                <Sparkles className="h-4 w-4" /> Copy Referral Code
+              </button>
+              <button
+                onClick={() => handleCopy(donationUpi)}
+                className="inline-flex items-center gap-2 rounded-full border border-border bg-background px-3 py-2 text-sm font-semibold text-foreground"
+              >
+                <Gift className="h-4 w-4" /> Copy Donation UPI
+              </button>
+            </div>
           </div>
         </div>
 

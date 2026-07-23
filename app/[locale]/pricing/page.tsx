@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { PRICING, BRAND } from "@/lib/constants";
-import { Check, Loader2, Sparkles, Shield, CreditCard, ExternalLink } from "lucide-react";
+import { Check, Loader2, Sparkles, Shield, CreditCard, ExternalLink, Gift, Share2 } from "lucide-react";
 
 export default function PricingPage() {
   const [loading, setLoading] = useState(false);
@@ -128,6 +128,30 @@ export default function PricingPage() {
           <p className="text-sm text-muted-foreground">
             Get unlimited access to high-fidelity conversions and browser-side speed optimization. Cancel anytime.
           </p>
+        </div>
+
+        <div className="rounded-2xl border border-border/60 bg-card p-6 shadow-sm">
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+            <div className="space-y-2">
+              <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-primary">Support & Growth</p>
+              <h2 className="text-xl font-bold text-foreground">Donate, share, or subscribe for an ad-free experience.</h2>
+              <p className="text-sm text-muted-foreground">Use the UPI address arasu9629hf@okhdfcbank for donations, share your referral code, or upgrade to Pro for the best experience.</p>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <button
+                onClick={() => navigator.clipboard.writeText("arasu9629hf@okhdfcbank")} 
+                className="inline-flex items-center gap-2 rounded-full border border-border bg-background px-3 py-2 text-sm font-semibold text-foreground"
+              >
+                <Gift className="h-4 w-4" /> Copy Donation UPI
+              </button>
+              <button
+                onClick={() => navigator.clipboard.writeText("ARASU10")}
+                className="inline-flex items-center gap-2 rounded-full border border-border bg-background px-3 py-2 text-sm font-semibold text-foreground"
+              >
+                <Share2 className="h-4 w-4" /> Copy Referral Code
+              </button>
+            </div>
+          </div>
         </div>
 
         {/* Currency Switcher */}
