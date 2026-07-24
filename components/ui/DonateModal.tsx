@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
-import { X, Heart, Copy, Check, Sparkles, QrCode, CreditCard, ShieldCheck } from "lucide-react";
+import { X, Heart, Copy, Check, Sparkles, QrCode, CreditCard, ShieldCheck, ExternalLink } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface DonateModalProps {
@@ -54,6 +54,11 @@ export default function DonateModal({ isOpen, onClose }: DonateModalProps) {
     return `https://victormedia.net/donate?amount=${activeAmount}&currency=${currency}`;
   };
 
+  const handleLaunchPay = () => {
+    const payload = getPaymentPayload();
+    window.location.href = payload;
+  };
+
   // Render QR Code
   useEffect(() => {
     if (!isOpen || typeof window === "undefined" || !qrRef.current) return;
@@ -64,8 +69,8 @@ export default function DonateModal({ isOpen, onClose }: DonateModalProps) {
     try {
       const QRCodeStyling = require("qr-code-styling");
       qrInstance.current = new QRCodeStyling({
-        width: 220,
-        height: 220,
+        width: 210,
+        height: 210,
         type: "svg",
         data: payload,
         dotsOptions: {
@@ -95,9 +100,12 @@ export default function DonateModal({ isOpen, onClose }: DonateModalProps) {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+    <div 
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200"
+      onClick={onClose}
+    >
       <div 
-        className="relative w-full max-w-md overflow-hidden rounded-2xl border border-border/80 bg-card p-6 shadow-2xl transition-all"
+        className="relative w-full max-w-md max-h-[90vh] overflow-y-auto rounded-2xl border border-border/80 bg-card p-6 shadow-2xl transition-all"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Close Button */}
@@ -198,15 +206,31 @@ export default function DonateModal({ isOpen, onClose }: DonateModalProps) {
             )}
           </div>
 
+          {/* Direct Pay Action Button */}
+          <button
+            onClick={handleLaunchPay}
+            className="w-full flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 py-3 text-xs font-extrabold text-white shadow-md shadow-emerald-500/20 hover:opacity-95 active:scale-98 transition-all"
+          >
+            <CreditCard className="h-4 w-4" /> Tap to Open GPay / PhonePe / Paytm ({CURRENCY_SYMBOLS[currency]}{activeAmount})
+            <ExternalLink className="h-3.5 w-3.5" />
+          </button>
+
           {/* QR Code Container */}
           <div className="flex flex-col items-center justify-center rounded-2xl border border-border/80 bg-muted/20 p-4 space-y-3">
             <div className="flex items-center gap-1.5 text-xs font-bold text-muted-foreground uppercase tracking-wider">
-              <QrCode className="h-4 w-4 text-primary" /> Scan QR Code to Pay ({CURRENCY_SYMBOLS[currency]}{activeAmount})
+              <QrCode className="h-4 w-4 text-primary" /> Scan or Tap QR Code ({CURRENCY_SYMBOLS[currency]}{activeAmount})
             </div>
 
-            {/* QR Render Canvas */}
-            <div className="rounded-xl border border-border bg-white p-3 shadow-md flex items-center justify-center">
-              <div ref={qrRef} className="h-[220px] w-[220px] flex items-center justify-center" />
+            {/* Clickable QR Render Canvas */}
+            <div 
+              onClick={handleLaunchPay}
+              title="Tap to open payment app directly"
+              className="rounded-xl border border-border bg-white p-3 shadow-md flex flex-col items-center justify-center cursor-pointer hover:scale-105 active:scale-95 transition-all group"
+            >
+              <div ref={qrRef} className="h-[210px] w-[210px] flex items-center justify-center" />
+              <span className="text-[11px] font-bold text-primary mt-2 flex items-center gap-1">
+                <Sparkles className="h-3 w-3" /> Tap QR to open GPay / PhonePe
+              </span>
             </div>
 
             {/* UPI ID copy field */}

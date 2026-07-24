@@ -13,7 +13,7 @@ export default function Home() {
   const filteredTools = TOOLS.filter((tool) => {
     const matchesSearch =
       tool.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      tool.description.toLowerCase().includes(tool.description.toLowerCase());
+      tool.description.toLowerCase().includes(searchQuery.toLowerCase());
     
     const matchesCategory = activeCategory === "all" || tool.category === activeCategory;
 

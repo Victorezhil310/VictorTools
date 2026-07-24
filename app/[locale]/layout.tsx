@@ -5,6 +5,7 @@ import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import { BRAND } from "@/lib/constants";
 import Script from "next/script";
+import { ThemeProvider } from "@/components/theme-provider";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -50,15 +51,22 @@ export default async function RootLayout({
   return (
     <html lang={locale} className="h-full scroll-smooth" suppressHydrationWarning>
       <body className={`${inter.variable} min-h-full flex flex-col font-sans antialiased`}>
-        <Script
-          async
-          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9747982919206794"
-          strategy="afterInteractive"
-          crossOrigin="anonymous"
-        />
-        <Header />
-        <main className="flex-1 bg-background flex flex-col">{children}</main>
-        <Footer />
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="dark"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <Script
+            async
+            src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9747982919206794"
+            strategy="afterInteractive"
+            crossOrigin="anonymous"
+          />
+          <Header />
+          <main className="flex-1 bg-background flex flex-col">{children}</main>
+          <Footer />
+        </ThemeProvider>
       </body>
     </html>
   );
