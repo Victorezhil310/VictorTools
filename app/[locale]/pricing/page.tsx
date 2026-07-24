@@ -1,164 +1,74 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { createClient } from "@/lib/supabase/client";
+import React, { useState } from "react";
 import { PRICING, BRAND } from "@/lib/constants";
-import { Check, Loader2, Sparkles, Shield, CreditCard, ExternalLink, Gift, Share2 } from "lucide-react";
+import { Check, Sparkles, ShieldCheck, Heart, Zap, Award, Gift, Copy, Mail } from "lucide-react";
+import DonateModal from "@/components/ui/DonateModal";
 
 export default function PricingPage() {
-  const [loading, setLoading] = useState(false);
-  const [user, setUser] = useState<any>(null);
-  const [profile, setProfile] = useState<any>(null);
   const [currency, setCurrency] = useState<"INR" | "USD">("INR");
-  const router = useRouter();
-  const supabase = createClient();
+  const [selectedPlanAmount, setSelectedPlanAmount] = useState<number>(49);
+  const [donateModalOpen, setDonateModalOpen] = useState(false);
+  const [copiedUpi, setCopiedUpi] = useState(false);
+  const [copiedEmail, setCopiedEmail] = useState(false);
 
-  useEffect(() => {
-    if (!supabase) {
-      setLoading(false);
-      return;
-    }
+  const handleSelectPlan = (amountInr: number, amountUsd: number) => {
+    const selectedAmount = currency === "INR" ? amountInr : amountUsd;
+    setSelectedPlanAmount(selectedAmount);
+    setDonateModalOpen(true);
+  };
 
-    // Load Razorpay Checkout Script dynamically
-    const script = document.createElement("script");
-    script.src = "https://checkout.razorpay.com/v1/checkout.js";
-    script.async = true;
-    document.body.appendChild(script);
-
-    const checkSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session) {
-        setUser(session.user);
-        const { data } = await supabase
-          .from("profiles")
-          .select("*")
-          .eq("id", session.user.id)
-          .single();
-        if (data) setProfile(data);
-      }
-    };
-    checkSession();
-
-    return () => {
-      document.body.removeChild(script);
-    };
-  }, [supabase]);
-
-  const handleSubscribe = async () => {
-    if (!supabase) {
-      alert("Payments are currently unavailable because the server is missing its payment configuration.");
-      return;
-    }
-
-    if (!user) {
-      router.push("/login?redirect=/pricing");
-      return;
-    }
-
-    setLoading(true);
-
-    try {
-      if (currency === "INR") {
-        // --- RAZORPAY PAYMENT WORKFLOW ---
-        const response = await fetch("/api/payments/razorpay/create-subscription", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-        });
-
-        if (!response.ok) {
-          const errData = await response.json();
-          throw new Error(errData.error || "Failed to create Razorpay subscription session");
-        }
-
-        const data = await response.json();
-
-        // Trigger Razorpay Checkout Modal
-        const options = {
-          key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || "rzp_test_placeholder_key",
-          subscription_id: data.subscriptionId,
-          name: BRAND.name,
-          description: "Monthly Pro Subscription",
-          handler: async function (checkoutResponse: any) {
-            // Verify payment on callback
-            alert("Checkout complete in test mode! We are updating your profile via backend webhook events.");
-            router.push("/dashboard");
-            router.refresh();
-          },
-          prefill: {
-            email: user.email,
-          },
-          theme: {
-            color: BRAND.accentColor,
-          },
-        };
-
-        const rzp = new (window as any).Razorpay(options);
-        rzp.open();
-      } else {
-        // --- STRIPE PAYMENT WORKFLOW ---
-        const response = await fetch("/api/payments/stripe/create-checkout", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-        });
-
-        if (!response.ok) {
-          const errData = await response.json();
-          throw new Error(errData.error || "Failed to create Stripe Checkout session");
-        }
-
-        const data = await response.json();
-        // Redirect to Stripe Hosted Checkout
-        if (data.url) {
-          window.location.href = data.url;
-        } else {
-          throw new Error("Stripe Redirect URL was not provided");
-        }
-      }
-    } catch (e: any) {
-      console.error(e);
-      alert(e.message || "An error occurred while creating subscription session.");
-    } finally {
-      setLoading(false);
-    }
+  const handleCopy = (text: string, setFn: (val: boolean) => void) => {
+    navigator.clipboard.writeText(text);
+    setFn(true);
+    setTimeout(() => setFn(false), 2000);
   };
 
   return (
-    <div className="flex-grow py-16 sm:py-24 relative overflow-hidden flex flex-col justify-center">
+    <div className="flex-grow py-16 sm:py-24 relative overflow-hidden flex flex-col justify-center animate-in fade-in duration-300">
       {/* Background gradients */}
       <div className="absolute top-0 right-1/4 -z-10 h-72 w-72 rounded-full bg-blue-500/10 blur-3xl opacity-50 dark:opacity-30" />
+      <div className="absolute bottom-1/4 left-1/4 -z-10 h-96 w-96 rounded-full bg-indigo-500/10 blur-3xl opacity-50 dark:opacity-20" />
 
-      <div className="container mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 space-y-12">
+      <div className="container mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 space-y-12">
         {/* Title */}
-        <div className="text-center max-w-2xl mx-auto space-y-4">
-          <span className="text-[10px] font-bold text-primary uppercase tracking-wider">Pricing Plans</span>
-          <h1 className="text-3xl sm:text-5xl font-black text-foreground">
-            Simple, Transparent Pricing.
+        <div className="text-center max-w-3xl mx-auto space-y-4">
+          <div className="inline-flex items-center gap-1.5 rounded-full border border-primary/20 bg-primary/10 px-3.5 py-1 text-xs font-bold text-primary">
+            <Sparkles className="h-3.5 w-3.5 fill-current text-amber-500" /> Instant Activation via UPI / Cards
+          </div>
+          <h1 className="text-4xl sm:text-6xl font-black text-foreground tracking-tight">
+            Simple, Transparent Subscription Plans.
           </h1>
-          <p className="text-sm text-muted-foreground">
-            Get unlimited access to high-fidelity conversions and browser-side speed optimization. Cancel anytime.
+          <p className="text-base sm:text-lg text-muted-foreground">
+            Get unlimited access to high-speed file conversions, bulk processing, and zero-ad utility tools. Direct instant UPI payments to <span className="font-bold text-foreground font-mono">arasu9629hf@okhdfcbank</span>.
           </p>
         </div>
 
-        <div className="rounded-2xl border border-border/60 bg-card p-6 shadow-sm">
+        {/* Support Banner & Quick UPI / Email copy */}
+        <div className="rounded-2xl border border-border/80 bg-card p-6 shadow-sm">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-            <div className="space-y-2">
-              <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-primary">Support & Growth</p>
-              <h2 className="text-xl font-bold text-foreground">Donate, share, or subscribe for an ad-free experience.</h2>
-              <p className="text-sm text-muted-foreground">Use the UPI address arasu9629hf@okhdfcbank for donations, share your referral code, or upgrade to Pro for the best experience.</p>
+            <div className="space-y-1">
+              <span className="text-[10px] font-extrabold uppercase tracking-[0.2em] text-primary">Direct Contact & Support</span>
+              <h2 className="text-lg font-bold text-foreground flex items-center gap-2">
+                Need Help or Custom Enterprise Plan? <Mail className="h-4 w-4 text-primary" />
+              </h2>
+              <p className="text-xs text-muted-foreground">
+                Email us at <a href="mailto:arasu9629hf@gmail.com" className="font-bold text-primary underline">arasu9629hf@gmail.com</a> or pay directly via UPI <span className="font-mono text-foreground font-bold">arasu9629hf@okhdfcbank</span>.
+              </p>
             </div>
-            <div className="flex flex-wrap gap-2">
+            
+            <div className="flex flex-wrap gap-2 shrink-0">
               <button
-                onClick={() => navigator.clipboard.writeText("arasu9629hf@okhdfcbank")} 
-                className="inline-flex items-center gap-2 rounded-full border border-border bg-background px-3 py-2 text-sm font-semibold text-foreground"
+                onClick={() => handleCopy("arasu9629hf@okhdfcbank", setCopiedUpi)} 
+                className="inline-flex items-center gap-1.5 rounded-xl border border-border bg-muted/30 px-3.5 py-2 text-xs font-bold text-foreground hover:bg-muted transition-all"
               >
-                <Gift className="h-4 w-4" /> Copy Donation UPI
+                <Gift className="h-3.5 w-3.5 text-pink-500" /> {copiedUpi ? "Copied UPI!" : "Copy UPI ID"}
               </button>
               <button
-                onClick={() => navigator.clipboard.writeText("ARASU10")}
-                className="inline-flex items-center gap-2 rounded-full border border-border bg-background px-3 py-2 text-sm font-semibold text-foreground"
+                onClick={() => handleCopy("arasu9629hf@gmail.com", setCopiedEmail)} 
+                className="inline-flex items-center gap-1.5 rounded-xl border border-border bg-muted/30 px-3.5 py-2 text-xs font-bold text-foreground hover:bg-muted transition-all"
               >
-                <Share2 className="h-4 w-4" /> Copy Referral Code
+                <Mail className="h-3.5 w-3.5 text-primary" /> {copiedEmail ? "Copied Email!" : "Copy Contact Email"}
               </button>
             </div>
           </div>
@@ -169,106 +79,186 @@ export default function PricingPage() {
           <div className="flex bg-muted/40 rounded-xl p-1 gap-1 border border-border/50">
             <button
               onClick={() => setCurrency("INR")}
-              className={`rounded-lg px-4 py-1.5 text-xs font-bold transition-all ${
-                currency === "INR" ? "bg-primary text-white" : "text-muted-foreground"
+              className={`rounded-lg px-5 py-2 text-xs font-bold transition-all ${
+                currency === "INR" ? "bg-primary text-white shadow-sm" : "text-muted-foreground hover:text-foreground"
               }`}
             >
-              INR (UPI/Domestic Cards)
+              INR (UPI / GPay / PhonePe / Cards)
             </button>
             <button
               onClick={() => setCurrency("USD")}
-              className={`rounded-lg px-4 py-1.5 text-xs font-bold transition-all ${
-                currency === "USD" ? "bg-primary text-white" : "text-muted-foreground"
+              className={`rounded-lg px-5 py-2 text-xs font-bold transition-all ${
+                currency === "USD" ? "bg-primary text-white shadow-sm" : "text-muted-foreground hover:text-foreground"
               }`}
             >
-              USD (International Cards)
+              USD (International Payments)
             </button>
           </div>
         </div>
 
-        {/* Pricing Cards Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-3xl mx-auto">
-          {/* Free Tier Card */}
-          <div className="rounded-2xl border border-border bg-card p-6 flex flex-col justify-between space-y-8 relative">
-            <div className="space-y-6">
-              <div className="space-y-2">
+        {/* Pricing Cards Grid (4 Plans) */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          
+          {/* Plan 1: Free Tier */}
+          <div className="rounded-2xl border border-border bg-card p-6 flex flex-col justify-between space-y-6 relative shadow-sm hover:border-border/80 transition-all">
+            <div className="space-y-4">
+              <div className="space-y-1">
                 <span className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider">Free Tier</span>
                 <p className="text-3xl font-black text-foreground">Free</p>
-                <p className="text-xs text-muted-foreground">For simple, daily processing needs.</p>
+                <p className="text-xs text-muted-foreground">Standard daily processing</p>
               </div>
 
-              <ul className="text-xs space-y-3.5">
+              <ul className="text-xs space-y-3 pt-2">
                 <li className="flex items-center gap-2 text-muted-foreground font-semibold">
-                  <Check className="h-4.5 w-4.5 text-primary" /> Daily caps: 5 tasks/day
+                  <Check className="h-4 w-4 text-primary" /> 5 Tasks / day
                 </li>
                 <li className="flex items-center gap-2 text-muted-foreground font-semibold">
-                  <Check className="h-4.5 w-4.5 text-primary" /> File Size Limits: Up to 10MB
+                  <Check className="h-4 w-4 text-primary" /> Up to 10MB Files
                 </li>
                 <li className="flex items-center gap-2 text-muted-foreground font-semibold">
-                  <Check className="h-4.5 w-4.5 text-primary" /> Small branding watermark on PDFs
+                  <Check className="h-4 w-4 text-primary" /> All 20+ Basic Tools
                 </li>
               </ul>
             </div>
 
             <button
               disabled
-              className="w-full rounded-xl border border-border h-11 text-xs font-bold text-muted-foreground uppercase cursor-not-allowed"
+              className="w-full rounded-xl border border-border h-11 text-xs font-bold text-muted-foreground uppercase cursor-not-allowed bg-muted/20"
             >
-              Current Default Tier
+              Current Active Plan
             </button>
           </div>
 
-          {/* Pro Subscription Card */}
-          <div className="rounded-2xl border-2 border-primary bg-card p-6 flex flex-col justify-between space-y-8 relative shadow-lg dark:shadow-primary/5">
-            <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 rounded-full bg-primary px-3 py-1 text-[10px] font-black uppercase text-white tracking-widest flex items-center gap-1 shadow-sm">
-              <Sparkles className="h-3 w-3 fill-current" /> Best Value
-            </div>
-
-            <div className="space-y-6 pt-2">
-              <div className="space-y-2">
-                <span className="text-[10px] uppercase font-bold text-primary tracking-wider">Pro Tier</span>
+          {/* Plan 2: Starter Plan */}
+          <div className="rounded-2xl border border-border bg-card p-6 flex flex-col justify-between space-y-6 relative shadow-sm hover:border-primary/50 transition-all">
+            <div className="space-y-4">
+              <div className="space-y-1">
+                <span className="text-[10px] uppercase font-bold text-primary tracking-wider flex items-center gap-1">
+                  <Zap className="h-3 w-3 fill-current" /> Starter Plan
+                </span>
                 <p className="text-3xl font-black text-foreground">
-                  {currency === "INR" 
-                    ? `₹${PRICING.monthly.inr}` 
-                    : `$${PRICING.monthly.usd}`}
+                  {currency === "INR" ? `₹${PRICING.starter.inr}` : `$${PRICING.starter.usd}`}
                   <span className="text-xs font-normal text-muted-foreground">/month</span>
                 </p>
-                <p className="text-xs text-muted-foreground">For power users and document professionals.</p>
+                <p className="text-xs text-muted-foreground">For students & light creators</p>
               </div>
 
-              <ul className="text-xs space-y-3.5">
+              <ul className="text-xs space-y-3 pt-2">
                 <li className="flex items-center gap-2 text-foreground font-semibold">
-                  <Check className="h-4.5 w-4.5 text-primary" /> Uncapped daily usage limits
+                  <Check className="h-4 w-4 text-primary" /> 100 Tasks / day
                 </li>
                 <li className="flex items-center gap-2 text-foreground font-semibold">
-                  <Check className="h-4.5 w-4.5 text-primary" /> High File Sizes: Up to 100MB
+                  <Check className="h-4 w-4 text-primary" /> Up to 50MB Files
                 </li>
                 <li className="flex items-center gap-2 text-foreground font-semibold">
-                  <Check className="h-4.5 w-4.5 text-primary" /> Watermarks fully removed
+                  <Check className="h-4 w-4 text-primary" /> Faster Conversion Speed
                 </li>
                 <li className="flex items-center gap-2 text-foreground font-semibold">
-                  <Check className="h-4.5 w-4.5 text-primary" /> Priority queue conversions
+                  <Check className="h-4 w-4 text-primary" /> No Ad Watermarks
                 </li>
               </ul>
             </div>
 
             <button
-              onClick={handleSubscribe}
-              disabled={loading || profile?.plan === "pro"}
-              className="w-full flex items-center justify-center gap-2 rounded-xl bg-primary h-11 text-xs font-bold text-white shadow-md hover:bg-primary/95 disabled:opacity-50 transition-all uppercase tracking-wider"
+              onClick={() => handleSelectPlan(PRICING.starter.inr, PRICING.starter.usd)}
+              className="w-full flex items-center justify-center gap-2 rounded-xl bg-muted hover:bg-primary hover:text-white h-11 text-xs font-bold text-foreground shadow-sm transition-all uppercase tracking-wider"
             >
-              {loading ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : profile?.plan === "pro" ? (
-                "You are Pro"
-              ) : (
-                "Upgrade to Pro"
-              )}
+              Select Starter ({currency === "INR" ? `₹${PRICING.starter.inr}` : `$${PRICING.starter.usd}`})
             </button>
           </div>
+
+          {/* Plan 3: Pro Plan (Featured) */}
+          <div className="rounded-2xl border-2 border-primary bg-card p-6 flex flex-col justify-between space-y-6 relative shadow-xl dark:shadow-primary/10 scale-105 z-10">
+            <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 rounded-full bg-primary px-3 py-1 text-[10px] font-black uppercase text-white tracking-widest flex items-center gap-1 shadow-sm">
+              <Sparkles className="h-3 w-3 fill-current" /> Most Popular
+            </div>
+
+            <div className="space-y-4 pt-2">
+              <div className="space-y-1">
+                <span className="text-[10px] uppercase font-bold text-primary tracking-wider flex items-center gap-1">
+                  <Award className="h-3 w-3 fill-current text-primary" /> Pro Plan
+                </span>
+                <p className="text-3xl font-black text-foreground">
+                  {currency === "INR" ? `₹${PRICING.pro.inr}` : `$${PRICING.pro.usd}`}
+                  <span className="text-xs font-normal text-muted-foreground">/month</span>
+                </p>
+                <p className="text-xs text-muted-foreground">For power users & professionals</p>
+              </div>
+
+              <ul className="text-xs space-y-3 pt-2">
+                <li className="flex items-center gap-2 text-foreground font-semibold">
+                  <Check className="h-4 w-4 text-primary" /> Uncapped Daily Usage
+                </li>
+                <li className="flex items-center gap-2 text-foreground font-semibold">
+                  <Check className="h-4 w-4 text-primary" /> Up to 100MB File Sizes
+                </li>
+                <li className="flex items-center gap-2 text-foreground font-semibold">
+                  <Check className="h-4 w-4 text-primary" /> Maximum Speed Queue
+                </li>
+                <li className="flex items-center gap-2 text-foreground font-semibold">
+                  <Check className="h-4 w-4 text-primary" /> Premium PDF & Resume Builder
+                </li>
+              </ul>
+            </div>
+
+            <button
+              onClick={() => handleSelectPlan(PRICING.pro.inr, PRICING.pro.usd)}
+              className="w-full flex items-center justify-center gap-2 rounded-xl bg-primary h-11 text-xs font-bold text-white shadow-md hover:bg-primary/95 transition-all uppercase tracking-wider"
+            >
+              Get Pro Now ({currency === "INR" ? `₹${PRICING.pro.inr}` : `$${PRICING.pro.usd}`})
+            </button>
+          </div>
+
+          {/* Plan 4: Enterprise Plan */}
+          <div className="rounded-2xl border border-border bg-card p-6 flex flex-col justify-between space-y-6 relative shadow-sm hover:border-primary/50 transition-all">
+            <div className="space-y-4">
+              <div className="space-y-1">
+                <span className="text-[10px] uppercase font-bold text-indigo-500 tracking-wider">Enterprise Plan</span>
+                <p className="text-3xl font-black text-foreground">
+                  {currency === "INR" ? `₹${PRICING.enterprise.inr}` : `$${PRICING.enterprise.usd}`}
+                  <span className="text-xs font-normal text-muted-foreground">/month</span>
+                </p>
+                <p className="text-xs text-muted-foreground">For teams & custom integrations</p>
+              </div>
+
+              <ul className="text-xs space-y-3 pt-2">
+                <li className="flex items-center gap-2 text-foreground font-semibold">
+                  <Check className="h-4 w-4 text-primary" /> Unlimited Team Accounts
+                </li>
+                <li className="flex items-center gap-2 text-foreground font-semibold">
+                  <Check className="h-4 w-4 text-primary" /> Up to 500MB Large Files
+                </li>
+                <li className="flex items-center gap-2 text-foreground font-semibold">
+                  <Check className="h-4 w-4 text-primary" /> Dedicated Email Support
+                </li>
+                <li className="flex items-center gap-2 text-foreground font-semibold">
+                  <Check className="h-4 w-4 text-primary" /> Custom API Access
+                </li>
+              </ul>
+            </div>
+
+            <button
+              onClick={() => handleSelectPlan(PRICING.enterprise.inr, PRICING.enterprise.usd)}
+              className="w-full flex items-center justify-center gap-2 rounded-xl bg-muted hover:bg-primary hover:text-white h-11 text-xs font-bold text-foreground shadow-sm transition-all uppercase tracking-wider"
+            >
+              Get Enterprise ({currency === "INR" ? `₹${PRICING.enterprise.inr}` : `$${PRICING.enterprise.usd}`})
+            </button>
+          </div>
+
+        </div>
+
+        {/* Security badge */}
+        <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground font-semibold pt-4">
+          <ShieldCheck className="h-4 w-4 text-emerald-500" /> Instant direct UPI transfer to <span className="font-mono text-foreground font-bold">arasu9629hf@okhdfcbank</span>. Contact <a href="mailto:arasu9629hf@gmail.com" className="text-primary underline font-bold">arasu9629hf@gmail.com</a> anytime.
         </div>
 
       </div>
+
+      {/* Instant Payment Modal for Selected Plan */}
+      <DonateModal
+        isOpen={donateModalOpen}
+        onClose={() => setDonateModalOpen(false)}
+      />
     </div>
   );
 }

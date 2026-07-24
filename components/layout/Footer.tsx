@@ -106,7 +106,7 @@ export default function Footer() {
           <div>
             <h3 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground mb-4">Support & Contact</h3>
             <ul className="space-y-2 text-sm">
-              <li><a href="mailto:support@victormedia.net" className="text-muted-foreground hover:text-foreground">support@victormedia.net</a></li>
+              <li><a href="mailto:arasu9629hf@gmail.com" className="text-muted-foreground hover:text-foreground">arasu9629hf@gmail.com</a></li>
               <li className="text-xs text-muted-foreground mt-4 leading-normal">
                 Owned & operated by {BRAND.company}.
               </li>

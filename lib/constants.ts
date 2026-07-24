@@ -4,6 +4,8 @@ export const BRAND = {
   domain: "victormedia.net",
   canonicalUrl: "https://victormedia.net",
   accentColor: "#3B82F6", // Electric Blue
+  contactEmail: "arasu9629hf@gmail.com",
+  upiId: "arasu9629hf@okhdfcbank",
 };
 
 export const LIMITS = {
@@ -12,17 +14,39 @@ export const LIMITS = {
     maxFileSize: 10 * 1024 * 1024, // 10MB
     watermark: true,
   },
+  starter: {
+    dailyLimit: 100,
+    maxFileSize: 50 * 1024 * 1024, // 50MB
+    watermark: false,
+  },
   pro: {
     dailyLimit: 999999, // Uncapped
     maxFileSize: 100 * 1024 * 1024, // 100MB
+    watermark: false,
+  },
+  enterprise: {
+    dailyLimit: 9999999, // Unlimited
+    maxFileSize: 500 * 1024 * 1024, // 500MB
     watermark: false,
   },
 };
 
 export const PRICING = {
   monthly: {
-    inr: 299,
-    usd: 4.99,
+    inr: 199,
+    usd: 2.99,
+  },
+  starter: {
+    inr: 49,
+    usd: 0.99,
+  },
+  pro: {
+    inr: 199,
+    usd: 2.99,
+  },
+  enterprise: {
+    inr: 499,
+    usd: 5.99,
   },
 };
 
